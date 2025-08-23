@@ -90,6 +90,22 @@
     "@aws-cdk/s3-notifications:addS3TrustKeyPolicyForSnsSubscriptions": true,
     "@aws-cdk/aws-ec2:requirePrivateSubnetsForEgressOnlyInternetGateway": true,
     "@aws-cdk/aws-s3:publicAccessBlockedByDefault": true,
-    "@aws-cdk/aws-lambda:useCdkManagedLogGroup": true
+    "@aws-cdk/aws-lambda:useCdkManagedLogGroup": true,
+    "prefix": "cdk-lambda-canary-workshop",
+    "qa": {
+      "region": "eu-west-2",
+      "lambda": {
+        "name": "cdk-lambda-canary-workshop-qa",
+        "alias": "live",
+        "stage": "qa"
+      },
+      "tags": {
+        "App" : "cdk-lambda-canary-workshop",
+        "Environment" : "qa",
+        "IaC" : "cdk"
+      }
+    },
+    "prod": {
+    }
   }
 }

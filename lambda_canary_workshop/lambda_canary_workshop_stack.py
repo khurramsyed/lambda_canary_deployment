@@ -17,7 +17,7 @@ class LambdaCanaryWorkshopStack(Stack):
         self.alias_name = context["lambda"]["alias"]
         self.stage_name = context["lambda"]["stage"]
 
-        current_date = datetime.today().strftime("%d-%n-%Y")
+        current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
         my_lambda = Function(
             scope=self,
@@ -27,7 +27,7 @@ class LambdaCanaryWorkshopStack(Stack):
             handler="handler.lambda_handler",
             code=Code.from_asset("lambda"),
             current_version_options=VersionOptions(
-                description=f"Version deployed on - {current_date}",
+                description=f"Version deployed on - {current_time}",
                 removal_policy=RemovalPolicy.RETAIN,
                 retry_attempts=1,
             ),
@@ -47,7 +47,7 @@ class LambdaCanaryWorkshopStack(Stack):
         # This Rest API will use Lamba alias as handler and deploy to stage defined in contex
         LambdaRestApi(
             scope=self,
-            id="RestApi",
+            id="RestAPI",
             description="This service serves the Lambda function.",
             handler=alias,
             deploy_options=StageOptions(stage_name=self.stage_name),
@@ -59,7 +59,7 @@ class LambdaCanaryWorkshopStack(Stack):
             metric=alias.metric_errors(),
             threshold=1,
             evaluation_periods=1,
-            alarm_description=" Latest Deployment Failure Alarm > 0",
+            alarm_description="Latest Deployment Failure Alarm > 0",
             alarm_name=f"{self.stack_name}-canary-alarm",
             comparison_operator=ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
         )

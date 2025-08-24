@@ -1,0 +1,14 @@
+[run]
+omit =
+    app.py
+    .venv/*
+    __init__.py
+    .env/*
+    tests/unit/test_lambda_canary_workshop_stack.py
+    lambda/*
+    cdk.out/*
+source =
+    .
+[report]
+include_namespace_packages = True
+fail_under = 100

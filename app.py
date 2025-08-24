@@ -1,7 +1,8 @@
-from aws_cdk import App, Environment
+from aws_cdk import App, Environment, Aspects
 from lambda_canary_workshop.lambda_canary_workshop_stack import (
     LambdaCanaryWorkshopStack,
 )
+from cdk_nag import AwsSolutionsChecks
 
 app = App()
 
@@ -19,4 +20,5 @@ LambdaCanaryWorkshopStack(
     tags=tags,
 )
 
+Aspects.of(app).add(AwsSolutionsChecks())
 app.synth()

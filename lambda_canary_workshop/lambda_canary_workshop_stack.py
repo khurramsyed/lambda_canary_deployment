@@ -5,6 +5,8 @@ from aws_cdk.aws_lambda import Function, Runtime, Code, Alias, VersionOptions
 from aws_cdk.aws_apigateway import LambdaRestApi, StageOptions
 from aws_cdk.aws_cloudwatch import Alarm, ComparisonOperator
 from aws_cdk.aws_codedeploy import LambdaDeploymentGroup, LambdaDeploymentConfig
+from cdk_nag import NagSuppressions
+
 
 
 class LambdaCanaryWorkshopStack(Stack):
@@ -45,7 +47,7 @@ class LambdaCanaryWorkshopStack(Stack):
         )
 
         # This Rest API will use Lamba alias as handler and deploy to stage defined in contex
-        LambdaRestApi(
+        api = LambdaRestApi(
             scope=self,
             id="RestAPI",
             description="This service serves the Lambda function.",
@@ -70,4 +72,74 @@ class LambdaCanaryWorkshopStack(Stack):
             alias=alias,
             deployment_config=LambdaDeploymentConfig.CANARY_10_PERCENT_5_MINUTES,
             alarms=[failure_alarm],
+        )
+        # Add cdk-nag suppressions
+        NagSuppressions.add_resource_suppressions_by_path(
+            self,
+            [
+                f"/{self.stack_name}/MyLambdaFunction/ServiceRole/Resource",
+                f"/{self.stack_name}/CanaryDeploymentGroup/ServiceRole/Resource"
+            ],
+            [
+                {
+                    "id": "AwsSolutions-IAM4",
+                    "reason": "Using AWS managed policies is acceptable for this demo/development environment"
+                }
+            ]
+        )
+
+        NagSuppressions.add_resource_suppressions(
+            api,
+            [
+                {
+                    "id": "AwsSolutions-APIG2",
+                    "reason": "Request validation not required for this demo API"
+                }
+            ]
+        )
+
+        NagSuppressions.add_resource_suppressions(
+            api.deployment_stage,
+            [
+                {
+                    "id": "AwsSolutions-APIG1",
+                    "reason": "Access logging not required for this demo/development API"
+                },
+                {
+                    "id": "AwsSolutions-APIG6",
+                    "reason": "CloudWatch logging not required for this demo/development API"
+                },
+                {
+                    "id": "AwsSolutions-APIG3",
+                    "reason": "WAF integration not required for this demo/development API"
+                }
+            ]
+        )
+
+        NagSuppressions.add_resource_suppressions_by_path(
+            self,
+            [
+                f"/{self.stack_name}/RestAPI/Default/{{proxy+}}/ANY/Resource",
+                f"/{self.stack_name}/RestAPI/Default/ANY/Resource"
+            ],
+            [
+                {
+                    "id": "AwsSolutions-APIG4",
+                    "reason": "Authorization not required for this demo/development API"
+                },
+                {
+                    "id": "AwsSolutions-COG4",
+                    "reason": "Cognito user pool not required for this demo/development API"
+                }
+            ]
+        )
+
+        NagSuppressions.add_resource_suppressions(
+            my_lambda,
+            [
+                {
+                    "id": "AwsSolutions-L1",
+                    "reason": "Using specific runtime version for compatibility reasons"
+                }
+            ]
         )
